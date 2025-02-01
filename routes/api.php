@@ -1,17 +1,15 @@
 <?php
 
 use App\Http\Controllers\{EventsController, ReservationController};
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
-});
-
-Route::fallback(function () {
-    return response()->json([
-        'error' => true,
-    ], 400);
-});
+Route::fallback(
+    fn () => response()->json([
+        'status'  => false,
+        'message' => trans('response.api_endpoint_not_found')
+    ], Response::HTTP_NOT_FOUND)
+);
 
 Route::group([
     'prefix' => 'events',
@@ -31,6 +29,6 @@ Route::group([
     Route::post('/', [ReservationController::class, 'store'])
         ->name('store');
 
-    Route::post('/{reservation}', [ReservationController::class, 'update'])
+    Route::put('/{reservation}', [ReservationController::class, 'update'])
         ->name('update');
 });
