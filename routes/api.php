@@ -11,24 +11,8 @@ Route::fallback(
     ], Response::HTTP_NOT_FOUND)
 );
 
-Route::group([
-    'prefix' => 'events',
-    'as'     => 'events'
-], function () {
-    Route::get('/', [EventsController::class, 'index'])
-        ->name('index');
+Route::apiResource('events', EventsController::class)
+    ->only(['index', 'show']);
 
-    Route::get('/{event}', [EventsController::class, 'show'])
-        ->name('show');
-});
-
-Route::group([
-    'prefix' => 'registrations',
-    'as'     => 'registrations'
-], function () {
-    Route::post('/', [ReservationController::class, 'store'])
-        ->name('store');
-
-    Route::put('/{reservation}', [ReservationController::class, 'update'])
-        ->name('update');
-});
+Route::apiResource('reservations', ReservationController::class)
+    ->except(['store', 'update', 'delete']);
