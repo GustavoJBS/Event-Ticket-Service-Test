@@ -37,6 +37,10 @@ class Reservation extends Model
             }
         });
 
+        static::updated(function (self $reservation) {
+            $reservation->updateEventAvailability($reservation->event);
+        });
+
         static::created(function (self $reservation) {
             $reservation->updateEventAvailability($reservation->event);
         });

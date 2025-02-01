@@ -30,4 +30,7 @@ Route::group([
 ], function () {
     Route::post('/', [ReservationController::class, 'store'])
         ->name('store');
+
+    Route::post('/{reservation}', [ReservationController::class, 'update'])
+        ->name('update');
 });
