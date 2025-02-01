@@ -6,7 +6,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\{Exceptions, Middleware};
 use Illuminate\Http\Response;
 use Illuminate\Validation\ValidationException;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\HttpKernel\Exception\{MethodNotAllowedHttpException, NotFoundHttpException};
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -47,6 +47,20 @@ return Application::configure(basePath: dirname(__DIR__))
                         ],
                         status: Response::HTTP_NOT_FOUND
                     );
+                }
+            }
+        );
+
+        $exceptions->renderable(
+            function (MethodNotAllowedHttpException $methodNotAllowedHttpException) {
+                if (request()->is('api/*')) {
+                    return response()->json(
+                        [
+                            'status'  => false,
+                            'message' => $methodNotAllowedHttpException->getMessage(),
+                        ],
+                        status: Response::HTTP_METHOD_NOT_ALLOWED
+                    )->setEncodingOptions(JSON_UNESCAPED_SLASHES);
                 }
             }
         );
