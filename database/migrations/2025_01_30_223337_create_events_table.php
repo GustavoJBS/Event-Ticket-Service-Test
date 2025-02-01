@@ -16,7 +16,9 @@ return new class () extends Migration {
 
             $table->dateTime('date');
 
-            $table->integer('availability');
+            $table->integer('total_availability');
+
+            $table->integer('remaining_availability');
 
             $table->timestamps();
         });
