@@ -19,7 +19,6 @@ return Application::configure(basePath: dirname(__DIR__))
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             UnescapeSlashes::class
         ]);
-
     })
     ->withExceptions(function (Exceptions $exceptions) {
         $exceptions->renderable(
@@ -37,7 +36,7 @@ return Application::configure(basePath: dirname(__DIR__))
             function (NotFoundHttpException $notFoundException) {
                 $previousException = $notFoundException->getPrevious();
 
-                if (request()->is('api/*') && $previousException instanceof ModelNotFoundException) {
+                if ($previousException instanceof ModelNotFoundException) {
                     return response()->json(
                         [
                             'status'  => false,
@@ -52,17 +51,12 @@ return Application::configure(basePath: dirname(__DIR__))
         );
 
         $exceptions->renderable(
-            function (MethodNotAllowedHttpException $methodNotAllowedHttpException) {
-                if (request()->is('api/*')) {
-                    return response()->json(
-                        [
-                            'status'  => false,
-                            'message' => $methodNotAllowedHttpException->getMessage(),
-                        ],
-                        status: Response::HTTP_METHOD_NOT_ALLOWED
-                    )->setEncodingOptions(JSON_UNESCAPED_SLASHES);
-                }
-            }
+            fn (MethodNotAllowedHttpException $methodNotAllowedHttpException) => response()->json(
+                [
+                    'status'  => false,
+                    'message' => $methodNotAllowedHttpException->getMessage(),
+                ],
+                status: Response::HTTP_METHOD_NOT_ALLOWED
+            )->setEncodingOptions(JSON_UNESCAPED_SLASHES)
         );
-
     })->create();

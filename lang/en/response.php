@@ -7,5 +7,6 @@ return [
 
     'retrieved' => ':entity retrieved successfully.',
     'created'   => ':entity created successfully.',
-    'updated'   => ':entity updated successfully.'
+    'updated'   => ':entity updated successfully.',
+    'cancel'    => ':entity cancelled successfully.'
 ];

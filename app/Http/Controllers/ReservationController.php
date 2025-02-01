@@ -42,6 +42,16 @@ class ReservationController extends Controller
 
     public function destroy(Reservation $reservation)
     {
-        //
+        $reservation->delete();
+
+        return response()->json(
+            [
+                'status'  => true,
+                'message' => trans('response.cancel', [
+                    'entity' => 'Reservation'
+                ])
+            ],
+            status: Response::HTTP_OK
+        );
     }
 }

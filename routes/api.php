@@ -15,4 +15,4 @@ Route::apiResource('events', EventsController::class)
     ->only(['index', 'show']);
 
 Route::apiResource('reservations', ReservationController::class)
-    ->except(['store', 'update', 'delete']);
+    ->only(['store', 'update', 'destroy']);
