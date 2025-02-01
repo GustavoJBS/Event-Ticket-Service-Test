@@ -1,17 +1,54 @@
 <?php
 
+use App\Http\Middleware\UnescapeSlashes;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\{Exceptions, Middleware};
+use Illuminate\Http\Response;
+use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
-        web: __DIR__ . '/../routes/web.php',
-        commands: __DIR__ . '/../routes/console.php',
+        api: __DIR__ . '/../routes/api.php',
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        //
+        $middleware->group('api', [
+            'throttle:60,1',
+            \Illuminate\Routing\Middleware\SubstituteBindings::class,
+            UnescapeSlashes::class
+        ]);
+
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        //
+        $exceptions->renderable(
+            fn (ValidationException $validationException) => response()->json(
+                [
+                    'status'  => false,
+                    'message' => trans('response.failed'),
+                    'errors'  => $validationException->errors()
+                ],
+                status: Response::HTTP_UNPROCESSABLE_ENTITY
+            )
+        );
+
+        $exceptions->renderable(
+            function (NotFoundHttpException $notFoundException) {
+                $previousException = $notFoundException->getPrevious();
+
+                if (request()->is('api/*') && $previousException instanceof ModelNotFoundException) {
+                    return response()->json(
+                        [
+                            'status'  => false,
+                            'message' => trans('response.not_found', [
+                                'entity' => str($previousException->getModel())->afterLast('\\')
+                            ]),
+                        ],
+                        status: Response::HTTP_NOT_FOUND
+                    );
+                }
+            }
+        );
+
     })->create();

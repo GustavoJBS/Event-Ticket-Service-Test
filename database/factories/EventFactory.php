@@ -12,7 +12,7 @@ class EventFactory extends Factory
     public function definition(): array
     {
         return [
-            'name'               => fake()->word,
+            'name'               => fake()->name,
             'description'        => fake()->sentence(),
             'date'               => fake()->dateTime(),
             'total_availability' => fake()->randomNumber(3)
