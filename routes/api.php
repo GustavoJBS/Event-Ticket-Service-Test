@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\EventsController;
+use App\Http\Controllers\{EventsController, ReservationController};
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -22,4 +22,12 @@ Route::group([
 
     Route::get('/{event}', [EventsController::class, 'show'])
         ->name('show');
+});
+
+Route::group([
+    'prefix' => 'registrations',
+    'as'     => 'registrations'
+], function () {
+    Route::post('/', [ReservationController::class, 'store'])
+        ->name('store');
 });
