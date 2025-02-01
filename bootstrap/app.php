@@ -25,7 +25,7 @@ return Application::configure(basePath: dirname(__DIR__))
             fn (ValidationException $validationException) => response()->json(
                 [
                     'status'  => false,
-                    'message' => trans('response.failed'),
+                    'message' => trans('response.invalid_paramaters'),
                     'errors'  => $validationException->errors()
                 ],
                 status: Response::HTTP_UNPROCESSABLE_ENTITY

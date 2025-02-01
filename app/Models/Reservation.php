@@ -50,10 +50,12 @@ class Reservation extends Model
         });
     }
 
-    private function updateEventAvailability(Event $event)
+    private function updateEventAvailability(Event $event): void
     {
+        $newRemainingAvailability = $event->total_availability - $event->reservations()->sum('number_of_tickets');
+
         $event->update([
-            'remaining_availability' => $event->total_availability - $event->reservations()->sum('number_of_tickets')
+            'remaining_availability' => $newRemainingAvailability
         ]);
     }
 }

@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'failed'                 => 'The request parameters are invalid.',
+    'invalid_paramaters'     => 'The request parameters are invalid.',
     'not_found'              => 'The :entity provided was not found.',
     'api_endpoint_not_found' => 'The requested URL was not found on this server.',
 
