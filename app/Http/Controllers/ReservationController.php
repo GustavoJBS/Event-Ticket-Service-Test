@@ -16,7 +16,7 @@ class ReservationController extends Controller
             [
                 'status'  => true,
                 'message' => trans('response.created', [
-                    'entity' => 'Reservation'
+                    'entity' => trans('entities.reservation')
                 ]),
                 'data' => $reservation
             ],
@@ -32,7 +32,7 @@ class ReservationController extends Controller
             [
                 'status'  => true,
                 'message' => trans('response.updated', [
-                    'entity' => 'Reservation'
+                    'entity' => trans('entities.reservation')
                 ]),
                 'data' => $reservation
             ],
@@ -48,7 +48,7 @@ class ReservationController extends Controller
             [
                 'status'  => true,
                 'message' => trans('response.cancel', [
-                    'entity' => 'Reservation'
+                    'entity' => trans('entities.reservation')
                 ])
             ],
             status: Response::HTTP_OK

@@ -1,54 +1,31 @@
 <?php
 
 use App\Models\{Event, Reservation};
-use Illuminate\Http\Response;
 
 use function Pest\Laravel\get;
 
-it('should validate events index parameters', function () {
-    $response = get(route('api.events.index', [
-        'page'          => fake()->word,
-        'perPage'       => fake()->word,
-        'sortBy'        => fake()->name,
-        'sortDirection' => fake()->name,
-        'filters'       => [
-            'name'           => [fake()->word],
-            'description'    => [fake()->word],
-            'only_available' => fake()->randomNumber,
-            'start_date'     => fake()->randomNumber,
-            'end_date'       => fake()->randomNumber,
-        ],
-    ]));
+it('should validate events index parameters', function (array $data, array $errors) {
+    $response = get(route('api.events.index', $data));
 
     $response
-        ->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
+        ->assertUnprocessable()
         ->assertJson([
             'status'  => false,
             'message' => trans('response.invalid_paramaters'),
-            'errors'  => [
-                'page'                   => ['The page field must be a number.'],
-                'perPage'                => ['The per page field must be a number.'],
-                'sortBy'                 => ['The selected sort by is invalid.'],
-                'sortDirection'          => ['The selected sort direction is invalid.'],
-                'filters.name'           => ['The name field must be a string.'],
-                'filters.description'    => ['The description field must be a string.'],
-                'filters.only_available' => ['The only available field must be true or false.'],
-                'filters.start_date'     => ['The start date field must be a valid date.'],
-                'filters.end_date'       => ['The end date field must be a valid date.'],
-            ]
+            'errors'  => $errors
         ]);
-});
+})->with('events-filter-validations');
 
 it('should list events by page', function () {
     Event::factory(15)->create();
 
     get(route('api.events.index'))
-        ->assertStatus(Response::HTTP_OK)
+        ->assertOk()
         ->assertJsonCount(10, 'data')
         ->assertJsonCount(4, 'links')
         ->assertJson([
             'message' => trans('response.retrieved', [
-                'entity' => 'Events'
+                'entity' => trans('entities.events')
             ]),
             'status'       => true,
             'total'        => 15,
@@ -59,7 +36,7 @@ it('should list events by page', function () {
         ]);
 
     get(route('api.events.index', ['page' => 2]))
-        ->assertStatus(Response::HTTP_OK)
+        ->assertOk()
         ->assertJsonCount(5, 'data')
         ->assertJsonCount(4, 'links')
         ->assertJson([
@@ -86,18 +63,18 @@ it('should filter list of events', function (array $filters) {
     ]);
 
     get(route('api.events.index', ['filters' => $filters]))
-        ->assertStatus(Response::HTTP_OK)
+        ->assertOk()
         ->assertJsonCount(5, 'data');
 })->with('events-filters');
 
 it(
     'should not show event if id is invalid',
     fn () => get(route('api.events.show', ['event' => PHP_INT_MAX]))
-        ->assertStatus(Response::HTTP_NOT_FOUND)
+        ->assertNotFound()
         ->assertJson([
             'status'  => false,
             'message' => trans('response.not_found', [
-                'entity' => 'Event'
+                'entity' => trans('entities.event')
             ]),
         ])
 );
@@ -117,37 +94,12 @@ it('should show event with reservations', function () {
     $event->load('reservations');
 
     get(route('api.events.show', ['event' => $event->id]))
-        ->assertStatus(Response::HTTP_OK)
+        ->assertOk()
         ->assertJson([
             'status'  => true,
             'message' => trans('response.retrieved', [
-                'entity' => 'Event'
+                'entity' => trans('entities.event')
             ]),
             'data' => $event->toArray()
         ]);
 });
-
-dataset('events-filters', [
-    [
-        'filters' => [
-            'name'           => '',
-            'only_available' => true
-        ],
-    ],
-    [
-        'filters' => [
-            'name' => fake()->name
-        ],
-    ],
-    [
-        'filters' => [
-            'description' => fake()->sentence
-        ],
-    ],
-    [
-        'filters' => [
-            'start_date' => now()->subDay()->format('Y-m-d'),
-            'end_date'   => now()->addDay()->format('Y-m-d')
-        ],
-    ]
-]);

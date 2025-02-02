@@ -26,7 +26,7 @@ class EventsController extends Controller
                 [
                     'status'  => true,
                     'message' => trans('response.retrieved', [
-                        'entity' => 'Events'
+                        'entity' => trans('entities.events')
                     ])
                 ],
                 $events->toArray()
@@ -43,7 +43,7 @@ class EventsController extends Controller
             data: [
                 'status'  => true,
                 'message' => trans('response.retrieved', [
-                    'entity' => 'Event'
+                    'entity' => trans('entities.event')
                 ]),
                 'data' => $event
             ],

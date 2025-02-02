@@ -10,7 +10,7 @@ class FilterRequest extends FormRequest
     {
         return [
             'page'                   => ['numeric'],
-            'perPage'                => ['numeric'],
+            'perPage'                => ['numeric', 'min:1'],
             'sortBy'                 => ['string', 'in:id,name,date'],
             'sortDirection'          => ['string', 'in:asc,desc'],
             'filters'                => ['array'],

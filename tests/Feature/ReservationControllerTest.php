@@ -1,7 +1,6 @@
 <?php
 
 use App\Models\{Event, Reservation};
-use Illuminate\Http\Response;
 
 use function Pest\Laravel\{delete, post, put};
 
@@ -21,7 +20,7 @@ it('should avoid to create a reservation if the event has no tickets available',
 
 it('should validate reservations store parameters', function () {
     post(route('api.reservations.store'))
-        ->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
+        ->assertUnprocessable()
         ->assertJson([
             'status'  => false,
             'message' => trans('response.invalid_paramaters'),
@@ -35,7 +34,7 @@ it('should validate reservations store parameters', function () {
         'event_id'          => PHP_INT_MAX,
         'number_of_tickets' => PHP_INT_MAX
     ])
-        ->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
+        ->assertUnprocessable()
         ->assertJson([
             'status'  => false,
             'message' => trans('response.invalid_paramaters'),
@@ -51,7 +50,7 @@ it('should validate reservations store parameters', function () {
         'event_id'          => $event->id,
         'number_of_tickets' => PHP_INT_MAX
     ])
-        ->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
+        ->assertUnprocessable()
         ->assertJson([
             'status'  => false,
             'message' => trans('response.invalid_paramaters'),
@@ -74,11 +73,11 @@ it('should create a new reservation', function () {
         'event_id'          => $event->id,
         'number_of_tickets' => 10
     ])
-        ->assertStatus(Response::HTTP_CREATED)
+        ->assertCreated()
         ->assertJson([
             'status'  => true,
             'message' => trans('response.created', [
-                'entity' => 'Reservation'
+                'entity' => trans('entities.reservation')
             ]),
             'data' => [
                 'event_id'          => $event->id,
@@ -95,11 +94,11 @@ it('should create a new reservation', function () {
 it(
     'should not update reservation if id is invalid',
     fn () => put(route('api.reservations.update', ['reservation' => PHP_INT_MAX]))
-        ->assertStatus(Response::HTTP_NOT_FOUND)
+        ->assertNotFound()
         ->assertJson([
             'status'  => false,
             'message' => trans('response.not_found', [
-                'entity' => 'Reservation'
+                'entity' => trans('entities.reservation')
             ]),
         ])
 );
@@ -112,7 +111,7 @@ it('should validate reservations update parameters', function () {
     $reservation->refresh();
 
     put(route('api.reservations.update', ['reservation' => $reservation->id]))
-        ->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
+        ->assertUnprocessable()
         ->assertJson([
             'status'  => false,
             'message' => trans('response.invalid_paramaters'),
@@ -125,7 +124,7 @@ it('should validate reservations update parameters', function () {
         route('api.reservations.update', ['reservation' => $reservation->id]),
         ['number_of_tickets' => -1]
     )
-        ->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
+        ->assertUnprocessable()
         ->assertJson([
             'status'  => false,
             'message' => trans('response.invalid_paramaters'),
@@ -138,7 +137,7 @@ it('should validate reservations update parameters', function () {
         route('api.reservations.update', ['reservation' => $reservation->id]),
         ['number_of_tickets' => fake()->randomNumber(5)]
     )
-        ->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
+        ->assertUnprocessable()
         ->assertJson([
             'status'  => false,
             'message' => trans('response.invalid_paramaters'),
@@ -171,11 +170,11 @@ it('should update reservation number of tickets', function () {
         route('api.reservations.update', ['reservation' => $reservation->id]),
         ['number_of_tickets' => 10]
     )
-        ->assertStatus(Response::HTTP_OK)
+        ->assertOk()
         ->assertJson([
             'status'  => true,
             'message' => trans('response.updated', [
-                'entity' => 'Reservation'
+                'entity' => trans('entities.reservation')
             ]),
             'data' => [
                 'id'                => $reservation->id,
@@ -192,11 +191,11 @@ it('should update reservation number of tickets', function () {
 it(
     'should not destroy a reservation if id is invalid',
     fn () => delete(route('api.reservations.destroy', ['reservation' => PHP_INT_MAX]))
-        ->assertStatus(Response::HTTP_NOT_FOUND)
+        ->assertNotFound()
         ->assertJson([
             'status'  => false,
             'message' => trans('response.not_found', [
-                'entity' => 'Reservation'
+                'entity' => trans('entities.reservation')
             ]),
         ])
 );
@@ -212,11 +211,11 @@ it('should destroy a reservation', function () {
     ]);
 
     delete(route('api.reservations.destroy', ['reservation' => $reservation]))
-        ->assertStatus(Response::HTTP_OK)
+        ->assertOk()
         ->assertJson([
             'status'  => true,
             'message' => trans('response.cancel', [
-                'entity' => 'Reservation'
+                'entity' => trans('entities.reservation')
             ])
         ]);
 
