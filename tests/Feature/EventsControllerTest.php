@@ -6,7 +6,7 @@ use Illuminate\Http\Response;
 use function Pest\Laravel\get;
 
 it('should validate events index parameters', function () {
-    $response = get(route('events.index', [
+    $response = get(route('api.events.index', [
         'page'          => fake()->word,
         'perPage'       => fake()->word,
         'sortBy'        => fake()->name,
@@ -42,7 +42,7 @@ it('should validate events index parameters', function () {
 it('should list events by page', function () {
     Event::factory(15)->create();
 
-    get(route('events.index'))
+    get(route('api.events.index'))
         ->assertStatus(Response::HTTP_OK)
         ->assertJsonCount(10, 'data')
         ->assertJsonCount(4, 'links')
@@ -58,7 +58,7 @@ it('should list events by page', function () {
             'to'           => 10
         ]);
 
-    get(route('events.index', ['page' => 2]))
+    get(route('api.events.index', ['page' => 2]))
         ->assertStatus(Response::HTTP_OK)
         ->assertJsonCount(5, 'data')
         ->assertJsonCount(4, 'links')
@@ -72,9 +72,27 @@ it('should list events by page', function () {
         ]);
 });
 
+it('should filter list of events', function (array $filters) {
+    Event::factory(5)->create([
+        'date'               => now()->addMonth()->format('Y-m-d'),
+        'total_availability' => 10,
+    ]);
+
+    Event::factory(5)->create([
+        'name'               => $filters['name'] ?? fake()->name,
+        'date'               => $filters['start_date'] ?? $filters['end_date'] ?? now()->format('Y-m-d'),
+        'description'        => $filters['description'] ?? fake()->sentence,
+        'total_availability' => 0,
+    ]);
+
+    get(route('api.events.index', ['filters' => $filters]))
+        ->assertStatus(Response::HTTP_OK)
+        ->assertJsonCount(5, 'data');
+})->with('events-filters');
+
 it(
     'should not show event if id is invalid',
-    fn () => get(route('events.show', ['event' => PHP_INT_MAX]))
+    fn () => get(route('api.events.show', ['event' => PHP_INT_MAX]))
         ->assertStatus(Response::HTTP_NOT_FOUND)
         ->assertJson([
             'status'  => false,
@@ -98,7 +116,7 @@ it('should show event with reservations', function () {
 
     $event->load('reservations');
 
-    get(route('events.show', ['event' => $event->id]))
+    get(route('api.events.show', ['event' => $event->id]))
         ->assertStatus(Response::HTTP_OK)
         ->assertJson([
             'status'  => true,
@@ -108,3 +126,28 @@ it('should show event with reservations', function () {
             'data' => $event->toArray()
         ]);
 });
+
+dataset('events-filters', [
+    [
+        'filters' => [
+            'name'           => '',
+            'only_available' => true
+        ],
+    ],
+    [
+        'filters' => [
+            'name' => fake()->name
+        ],
+    ],
+    [
+        'filters' => [
+            'description' => fake()->sentence
+        ],
+    ],
+    [
+        'filters' => [
+            'start_date' => now()->subDay()->format('Y-m-d'),
+            'end_date'   => now()->addDay()->format('Y-m-d')
+        ],
+    ]
+]);

@@ -11,8 +11,10 @@ Route::fallback(
     ], Response::HTTP_NOT_FOUND)
 );
 
-Route::apiResource('events', EventsController::class)
-    ->only(['index', 'show']);
+Route::name('api.')->group(function () {
+    Route::apiResource('events', EventsController::class)
+        ->only(['index', 'show']);
 
-Route::apiResource('reservations', ReservationController::class)
-    ->only(['store', 'update', 'destroy']);
+    Route::apiResource('reservations', ReservationController::class)
+        ->only(['store', 'update', 'destroy']);
+});
