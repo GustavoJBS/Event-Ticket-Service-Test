@@ -24,6 +24,7 @@ class UpdateRequest extends FormRequest
     public function messages(): array
     {
         $availableTickets = $this->reservation->event()->value('remaining_availability');
+
         return [
             'number_of_tickets.max' => $availableTickets
                 ? trans(

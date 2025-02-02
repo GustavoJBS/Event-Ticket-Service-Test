@@ -18,60 +18,38 @@ it('should avoid to create a reservation if the event has no tickets available',
     ]);
 })->throws(Exception::class, 'There are no tickets available for this event.');
 
-it('should validate reservations store parameters', function () {
-    post(route('api.reservations.store'))
+it('should validate reservations store parameters', function (
+    array $data,
+    array $errors,
+    bool $createEvent = false
+) {
+
+    if ($createEvent) {
+        $data['event_id'] = Event::factory()->create([
+            'total_availability' => 100
+        ])->id;
+    }
+
+    post(route('api.reservations.store'), $data)
         ->assertUnprocessable()
         ->assertJson([
             'status'  => false,
             'message' => trans('response.invalid_paramaters'),
-            'errors'  => [
-                'event_id'          => ['The event id field is required.'],
-                'number_of_tickets' => ['The number of tickets field is required.']
-            ]
+            'errors'  => $errors
         ]);
-
-    post(route('api.reservations.store'), [
-        'event_id'          => PHP_INT_MAX,
-        'number_of_tickets' => PHP_INT_MAX
-    ])
-        ->assertUnprocessable()
-        ->assertJson([
-            'status'  => false,
-            'message' => trans('response.invalid_paramaters'),
-            'errors'  => [
-                'event_id'          => ['The selected event id is invalid.'],
-                'number_of_tickets' => ['Not enough tickets available. Please reduce the number of tickets you\'ve selected. There are only 0 tickets remaining.']
-            ]
-        ]);
-
-    $event = Event::factory()->create();
-
-    post(route('api.reservations.store'), [
-        'event_id'          => $event->id,
-        'number_of_tickets' => PHP_INT_MAX
-    ])
-        ->assertUnprocessable()
-        ->assertJson([
-            'status'  => false,
-            'message' => trans('response.invalid_paramaters'),
-            'errors'  => [
-                'number_of_tickets' => [
-                    trans('validation.max_number_of_tickets', [
-                        'max' => $event->remaining_availability
-                    ])
-                ]
-            ]
-        ]);
-});
+})->with('reservation-store-validations');
 
 it('should create a new reservation', function () {
     $event = Event::factory()->create([
         'total_availability' => 100
     ]);
 
+    $reservationHolder = fake()->name;
+
     post(route('api.reservations.store'), [
-        'event_id'          => $event->id,
-        'number_of_tickets' => 10
+        'event_id'           => $event->id,
+        'number_of_tickets'  => 10,
+        'reservation_holder' => $reservationHolder
     ])
         ->assertCreated()
         ->assertJson([
@@ -80,8 +58,9 @@ it('should create a new reservation', function () {
                 'entity' => trans('entities.reservation')
             ]),
             'data' => [
-                'event_id'          => $event->id,
-                'number_of_tickets' => 10
+                'event_id'           => $event->id,
+                'number_of_tickets'  => 10,
+                'reservation_holder' => $reservationHolder
             ]
         ]);
 
@@ -103,53 +82,23 @@ it(
         ])
 );
 
-it('should validate reservations update parameters', function () {
+it('should validate reservations update parameters', function (array $data, array $errors, int $numberOfTickets = 20) {
     $reservation = Reservation::factory()->create([
-        'number_of_tickets' => 20
+        'number_of_tickets' => $numberOfTickets,
+        'event_id'          => Event::factory()->create(['total_availability' => 100])->id
     ]);
 
-    $reservation->refresh();
-
-    put(route('api.reservations.update', ['reservation' => $reservation->id]))
-        ->assertUnprocessable()
-        ->assertJson([
-            'status'  => false,
-            'message' => trans('response.invalid_paramaters'),
-            'errors'  => [
-                'number_of_tickets' => ['The number of tickets field is required.']
-            ]
-        ]);
-
     put(
         route('api.reservations.update', ['reservation' => $reservation->id]),
-        ['number_of_tickets' => -1]
+        $data
     )
         ->assertUnprocessable()
         ->assertJson([
             'status'  => false,
             'message' => trans('response.invalid_paramaters'),
-            'errors'  => [
-                'number_of_tickets' => ['The number of tickets field must be at least 1.']
-            ]
+            'errors'  => $errors
         ]);
-
-    put(
-        route('api.reservations.update', ['reservation' => $reservation->id]),
-        ['number_of_tickets' => fake()->randomNumber(5)]
-    )
-        ->assertUnprocessable()
-        ->assertJson([
-            'status'  => false,
-            'message' => trans('response.invalid_paramaters'),
-            'errors'  => [
-                'number_of_tickets' => [
-                    trans('validation.max_number_of_tickets', [
-                        'max' => $reservation->event->total_availability
-                    ])
-                ]
-            ]
-        ]);
-});
+})->with('reservation-update-validations');
 
 it('should update reservation number of tickets', function () {
     $event = Event::factory()->create([
