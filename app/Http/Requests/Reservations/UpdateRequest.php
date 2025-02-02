@@ -11,7 +11,8 @@ class UpdateRequest extends FormRequest
         $maxNumberOfTickets = $this->reservation->number_of_tickets + $this->reservation->event()->value('remaining_availability');
 
         return [
-            'number_of_tickets' => [
+            'reservation_holder' => ['nullable', 'string', 'min:5', 'max:60'],
+            'number_of_tickets'  => [
                 'required',
                 'numeric',
                 'min:1',
@@ -22,8 +23,17 @@ class UpdateRequest extends FormRequest
 
     public function messages(): array
     {
+        $availableTickets = $this->reservation->event()->value('remaining_availability');
         return [
-            'number_of_tickets.max' => trans('validation.max_number_of_tickets')
+            'number_of_tickets.max' => $availableTickets
+                ? trans(
+                    'validation.update_max_number_of_tickets',
+                    [
+                        'addedTickets'     => request()->integer('number_of_tickets') - $this->reservation->number_of_tickets,
+                        'availableTickets' => $availableTickets
+                    ]
+                )
+                : trans('exception.no_ticket_available')
         ];
     }
 }

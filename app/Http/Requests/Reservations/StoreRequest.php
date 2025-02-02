@@ -17,8 +17,9 @@ class StoreRequest extends FormRequest
             )->value('remaining_availability') ?? 0;
 
         return [
-            'event_id'          => ['required', Rule::exists(Event::class, 'id')],
-            'number_of_tickets' => [
+            'event_id'           => ['required', Rule::exists(Event::class, 'id')],
+            'reservation_holder' => ['required', 'string', 'min:5', 'max:60'],
+            'number_of_tickets'  => [
                 'required',
                 'numeric',
                 'min:1',

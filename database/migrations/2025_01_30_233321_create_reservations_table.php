@@ -14,6 +14,8 @@ return new class () extends Migration {
                 ->constrained(table: 'events')
                 ->cascadeOnDelete();
 
+            $table->string('reservation_holder');
+
             $table->integer('number_of_tickets');
 
             $table->timestamps();

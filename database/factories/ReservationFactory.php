@@ -13,8 +13,9 @@ class ReservationFactory extends Factory
     public function definition(): array
     {
         return [
-            'event_id'          => Event::factory(),
-            'number_of_tickets' => fake()->randomNumber(2)
+            'event_id'           => Event::factory(),
+            'reservation_holder' => fake()->name,
+            'number_of_tickets'  => fake()->randomNumber(2)
         ];
     }
 }
