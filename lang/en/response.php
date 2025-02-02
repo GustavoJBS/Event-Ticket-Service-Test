@@ -8,5 +8,8 @@ return [
     'retrieved' => ':entity retrieved successfully.',
     'created'   => ':entity created successfully.',
     'updated'   => ':entity updated successfully.',
-    'cancel'    => ':entity cancelled successfully.'
+    'cancel'    => ':entity cancelled successfully.',
+
+    'failed_to_create' => ':entity failed to create.',
+    'failed_to_update' => ':entity failed to update.'
 ];

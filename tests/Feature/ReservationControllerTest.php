@@ -1,22 +1,9 @@
 <?php
 
+use App\Http\Requests\Reservations\{StoreRequest, UpdateRequest};
 use App\Models\{Event, Reservation};
 
-use function Pest\Laravel\{delete, post, put};
-
-it('should avoid to create a reservation if it has more tickets than available', function () {
-    Reservation::factory()->create([
-        'number_of_tickets' => 1001,
-        'event_id'          => Event::factory()->create(['total_availability' => 1000])
-    ]);
-})->throws(Exception::class, 'This event has only 1000 tickets remaining.');
-
-it('should avoid to create a reservation if the event has no tickets available', function () {
-    Reservation::factory()->create([
-        'number_of_tickets' => 5000,
-        'event_id'          => Event::factory()->create(['total_availability' => 0])
-    ]);
-})->throws(Exception::class, 'There are no tickets available for this event.');
+use function Pest\Laravel\{delete, partialMock, post, put};
 
 it('should validate reservations store parameters', function (
     array $data,
@@ -172,4 +159,70 @@ it('should destroy a reservation', function () {
 
     expect($event->remaining_availability)
         ->toBe(100);
+});
+
+it('should fail to create a reservation', function () {
+    $event = Event::factory()->create([
+        'total_availability' => 30
+    ]);
+
+    partialMock(StoreRequest::class)
+        ->shouldReceive('validated')
+        ->withAnyArgs()
+        ->andReturn([
+            'event_id'          => $event->id,
+            'number_of_tickets' => 50
+        ]);
+
+    post(route('api.reservations.store'), [
+        'event_id'           => $event->id,
+        'number_of_tickets'  => 10,
+        'reservation_holder' => fake()->word
+    ])
+        ->assertBadRequest()
+        ->assertJson([
+            'status' => true,
+            'error'  => trans('response.failed_to_create', [
+                'entity' => trans('entities.reservation')
+            ]),
+            'message' => trans('exception.tickets_available_not_enough', [
+                'total' => 30,
+                'label' => trans('entities.tickets')
+            ])
+        ]);
+    ;
+});
+
+it('should fail to update a reservation', function () {
+    $event = Event::factory()->create([
+        'total_availability' => 30
+    ]);
+
+    $reservation = Reservation::factory()->create([
+        'number_of_tickets' => 10,
+        'event_id'          => $event->id
+    ]);
+
+    partialMock(UpdateRequest::class)
+        ->shouldReceive('validated')
+        ->withAnyArgs()
+        ->andReturn([
+            'number_of_tickets' => 50
+        ]);
+
+    put(route('api.reservations.update', ['reservation' => $reservation->id]), [
+        'number_of_tickets' => 10,
+    ])
+        ->assertBadRequest()
+        ->assertJson([
+            'status' => true,
+            'error'  => trans('response.failed_to_update', [
+                'entity' => trans('entities.reservation')
+            ]),
+            'message' => trans('exception.tickets_available_not_enough', [
+                'total' => 20,
+                'label' => trans('entities.tickets')
+            ])
+        ]);
+    ;
 });

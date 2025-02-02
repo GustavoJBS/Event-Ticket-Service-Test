@@ -24,32 +24,18 @@ class Reservation extends Model
         parent::boot();
 
         static::creating(function (self $reservation) {
-            $remainingAvailability = $reservation->event->remaining_availability;
-
-            if ($reservation->number_of_tickets > $remainingAvailability) {
-                $ticketsLabel = str('ticket')
-                    ->plural($remainingAvailability)
-                    ->toString();
-
-                throw new Exception(
-                    trans(
-                        $remainingAvailability > 0
-                            ? 'exception.no_tickets_available'
-                            : 'exception.no_ticket_available',
-                        [
-                            'total' => $remainingAvailability,
-                            'label' => $ticketsLabel
-                        ]
-                    )
-                );
-            }
-        });
-
-        static::updated(function (self $reservation) {
-            $reservation->updateEventAvailability($reservation->event);
+            $reservation->validateCurrentRemainingTicket();
         });
 
         static::created(function (self $reservation) {
+            $reservation->updateEventAvailability($reservation->event);
+        });
+
+        static::updating(function (self $reservation) {
+            $reservation->validateCurrentRemainingTicket();
+        });
+
+        static::updated(function (self $reservation) {
             $reservation->updateEventAvailability($reservation->event);
         });
 
@@ -65,5 +51,28 @@ class Reservation extends Model
         $event->update([
             'remaining_availability' => $newRemainingAvailability
         ]);
+    }
+
+    private function validateCurrentRemainingTicket(): void
+    {
+        $remainingAvailability = $this->event->remaining_availability;
+
+        if ($this->number_of_tickets > $remainingAvailability) {
+            $ticketsLabel = str(trans('entities.ticket'))
+                ->plural($remainingAvailability)
+                ->toString();
+
+            throw new Exception(
+                trans(
+                    $remainingAvailability > 0
+                        ? 'exception.tickets_available_not_enough'
+                        : 'exception.no_ticket_available',
+                    [
+                        'total' => $remainingAvailability,
+                        'label' => $ticketsLabel
+                    ]
+                )
+            );
+        }
     }
 }
