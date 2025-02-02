@@ -40,7 +40,7 @@ class ReservationController extends Controller
         );
     }
 
-    public function destroy(Reservation $reservation)
+    public function destroy(Reservation $reservation): JsonResponse
     {
         $reservation->delete();
 

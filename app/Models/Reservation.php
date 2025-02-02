@@ -24,15 +24,23 @@ class Reservation extends Model
         parent::boot();
 
         static::creating(function (self $reservation) {
-            if ($reservation->number_of_tickets > $reservation->event->total_availability) {
+            $remainingAvailability = $reservation->event->remaining_availability;
+
+            if ($reservation->number_of_tickets > $remainingAvailability) {
                 $ticketsLabel = str('ticket')
-                    ->plural($reservation->event->total_availability)
+                    ->plural($remainingAvailability)
                     ->toString();
 
                 throw new Exception(
-                    $reservation->event->total_availability
-                        ? "This event has only {$reservation->event->total_availability} {$ticketsLabel} remaining."
-                        : "There are no tickets available for this event."
+                    trans(
+                        $remainingAvailability > 0
+                            ? 'exception.no_tickets_available'
+                            : 'exception.no_ticket_available',
+                        [
+                            'total' => $remainingAvailability,
+                            'label' => $ticketsLabel
+                        ]
+                    )
                 );
             }
         });

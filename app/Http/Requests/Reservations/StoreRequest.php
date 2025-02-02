@@ -14,7 +14,7 @@ class StoreRequest extends FormRequest
             ->where(
                 'id',
                 request()->integer('event_id')
-            )->value('remaining_availability', 0);
+            )->value('remaining_availability') ?? 0;
 
         return [
             'event_id'          => ['required', Rule::exists(Event::class, 'id')],
