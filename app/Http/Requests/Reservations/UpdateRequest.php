@@ -25,12 +25,14 @@ class UpdateRequest extends FormRequest
     {
         $availableTickets = $this->reservation->event()->value('remaining_availability');
 
+        $addedTickets = request()->integer('number_of_tickets') - $this->reservation->number_of_tickets;
+
         return [
             'number_of_tickets.max' => $availableTickets
                 ? trans(
                     'validation.update_max_number_of_tickets',
                     [
-                        'addedTickets'     => request()->integer('number_of_tickets') - $this->reservation->number_of_tickets,
+                        'addedTickets'     => $addedTickets,
                         'availableTickets' => $availableTickets
                     ]
                 )

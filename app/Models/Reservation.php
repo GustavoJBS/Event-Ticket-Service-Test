@@ -55,7 +55,7 @@ class Reservation extends Model
 
     private function validateCurrentRemainingTicket(): void
     {
-        $remainingAvailability = $this->event->remaining_availability;
+        $remainingAvailability = $this->event()->value('remaining_availability');
 
         if ($this->number_of_tickets > $remainingAvailability) {
             $ticketsLabel = str(trans('entities.ticket'))
