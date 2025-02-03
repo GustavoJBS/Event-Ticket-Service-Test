@@ -26,6 +26,8 @@ _Please, enter all the necessary steps to setup the project and start to develop
 
 ```shell
 git clone git@github.com:GustavoJBS/Event-Ticket-Service-Test.git
+
+cd Event-Ticket-Service-Test
 ```
 
 #### 2. Install the PHP dependencies
