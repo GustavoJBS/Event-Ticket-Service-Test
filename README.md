@@ -81,12 +81,12 @@ php artisan migrate --seed
 ### Running Tests with Coverage
 
 ```shell
-php artisan migrate --seed
+php artisan test --coverage-html coverage
 ```
 
 **docker**
 ```shell
-./vendor/bin/sail pest --coverage-html coverage
+./vendor/bin/sail artisan test --coverage-html coverage
 ```
 
 ### Parallel tests with Coverage
