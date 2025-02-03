@@ -81,9 +81,8 @@ it('should fail to create a reservation', function () {
             'error'  => trans('response.failed_to_create', [
                 'entity' => trans('entities.reservation')
             ]),
-            'message' => trans('exception.tickets_available_not_enough', [
-                'total' => 30,
-                'label' => trans('entities.tickets')
+            'message' => trans('validation.max_number_of_tickets', [
+                'max' => 30
             ])
         ]);
 });

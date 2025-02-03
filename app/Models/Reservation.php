@@ -55,24 +55,31 @@ class Reservation extends Model
 
     private function validateCurrentRemainingTicket(): void
     {
-        $remainingAvailability = $this->event()->value('remaining_availability');
+        $availableTickets = $this->event()->value('remaining_availability');
 
-        if ($this->number_of_tickets > $remainingAvailability) {
-            $ticketsLabel = str(trans('entities.ticket'))
-                ->plural($remainingAvailability)
-                ->toString();
+        $addedTickets = $this->number_of_tickets - $this->getOriginal('number_of_tickets', 0);
 
+        if ($addedTickets > $availableTickets) {
             throw new Exception(
-                trans(
-                    $remainingAvailability > 0
-                        ? 'exception.tickets_available_not_enough'
-                        : 'exception.no_ticket_available',
-                    [
-                        'total' => $remainingAvailability,
-                        'label' => $ticketsLabel
-                    ]
-                )
+                $this->getNumberOfTIcketsExceptionMessage($addedTickets, $availableTickets)
             );
         }
+    }
+
+    private function getNumberOfTIcketsExceptionMessage(int $addedTickets, int $availableTickets): string
+    {
+        return match(true) {
+            $this->exists && $availableTickets => trans(
+                'validation.update_max_number_of_tickets',
+                [
+                    'addedTickets'     => $addedTickets,
+                    'availableTickets' => $availableTickets
+                ]
+            ),
+            !$this->exists && $availableTickets => trans('validation.max_number_of_tickets', [
+                'max' => $availableTickets
+            ]),
+            default => trans('exception.no_ticket_available')
+        };
     }
 }

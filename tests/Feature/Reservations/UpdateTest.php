@@ -98,9 +98,39 @@ it('should fail to update a reservation', function () {
             'error'  => trans('response.failed_to_update', [
                 'entity' => trans('entities.reservation')
             ]),
-            'message' => trans('exception.tickets_available_not_enough', [
-                'total' => 20,
-                'label' => trans('entities.tickets')
+            'message' => trans('validation.update_max_number_of_tickets', [
+                'addedTickets'     => 40,
+                'availableTickets' => 20
             ])
+        ]);
+});
+
+it('should fail to update a reservation with no tickets available', function () {
+    $event = Event::factory()->create([
+        'total_availability' => 30
+    ]);
+
+    $reservation = Reservation::factory()->create([
+        'number_of_tickets' => 30,
+        'event_id'          => $event->id
+    ]);
+
+    partialMock(UpdateRequest::class)
+        ->shouldReceive('validated')
+        ->withAnyArgs()
+        ->andReturn([
+            'number_of_tickets' => 50
+        ]);
+
+    put(route('api.reservations.update', ['reservation' => $reservation->id]), [
+        'number_of_tickets' => 10,
+    ])
+        ->assertBadRequest()
+        ->assertJson([
+            'status' => true,
+            'error'  => trans('response.failed_to_update', [
+                'entity' => trans('entities.reservation')
+            ]),
+            'message' => trans('exception.no_ticket_available')
         ]);
 });
