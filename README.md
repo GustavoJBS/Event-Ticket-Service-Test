@@ -3,9 +3,9 @@
 ### Platform Requirements
 
 ```text
-Laravel Version: 11.31
+Laravel Version: 11.31 (default port: 8080)
 PHP Version: 8.4
-DB Version: MySQL
+DB Version: MySQL (default port: 3306)
 Composer Version: 2.8.5
 Node Version: 22.13.1
 NPM Version: 11.1.0
