@@ -1,4 +1,4 @@
-# Project Name
+# BE Project - Event Ticket Service
 
 ### Platform Requirements
 
@@ -87,7 +87,7 @@ php artisan migrate --seed
 ./vendor/bin/sail pest --coverage-html coverage
 ```
 
-##### Parallel tests with Coverage
+### Parallel tests with Coverage
 
 ```shell
 php artisan test --parallel --coverage-html coverage
@@ -98,7 +98,7 @@ php artisan test --parallel --coverage-html coverage
 ./vendor/bin/sail artisan test --parallel --coverage-html coverage
 ```
 
-##### Verify Code style / test
+### Verify Code style / test
 
 ```shell
 composer verify
