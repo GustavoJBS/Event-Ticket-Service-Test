@@ -113,6 +113,12 @@ composer verify
 
 ## REST API
 
+### Insomnia Import Request
+
+```
+If you are using the Insomnia REST client, you can use the file Insomnia-Import-File.json to import these requests.
+```
+
 ### Get Events paginated list
 
 #### URL Parameters
