@@ -247,7 +247,7 @@ number_of_tickets: required, numeric, min:1, max:{available event tickets}
 
 `POST /api/reservations`
 
-    curl -v -i -H 'Accept: application/json' -d 'event_id=1&reservation_holder=Reservation%20Holder&number_of_tickets=5' -X POST http://localhost:8080/api/reservations
+    curl -i -H 'Accept: application/json' -d 'event_id=1&reservation_holder=Reservation%20Holder&number_of_tickets=5' -X POST http://localhost:8080/api/reservations
     
 #### Response
     HTTP/1.1 201 Created
