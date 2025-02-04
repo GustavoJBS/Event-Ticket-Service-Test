@@ -4,6 +4,17 @@ use App\Models\Event;
 
 use function Pest\Laravel\get;
 
+it('should return fallback route', function () {
+    $response = get('/api/random-route');
+
+    $response
+        ->assertNotFound()
+        ->assertJson([
+            'status'  => false,
+            'message' => trans('response.api_endpoint_not_found'),
+        ]);
+});
+
 it('should validate events index parameters', function (array $data, array $errors) {
     $response = get(route('api.events.index', $data));
 
