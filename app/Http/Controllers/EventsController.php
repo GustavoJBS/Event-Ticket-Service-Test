@@ -21,17 +21,13 @@ class EventsController extends Controller
             ->orderBy($sortBy, $sortDirection)
             ->paginate($perPage);
 
-        return response()->json(
-            data: array_merge(
-                [
-                    'status'  => true,
-                    'message' => trans('response.retrieved', [
-                        'entity' => trans('entities.events')
-                    ])
-                ],
-                $events->toArray()
-            ),
-            status: Response::HTTP_OK
+        return jsonResponse(
+            status: true,
+            message: trans('response.retrieved', [
+                'entity' => trans('entities.events')
+            ]),
+            statusCode: Response::HTTP_OK,
+            mergeData: $events->toArray()
         );
     }
 
@@ -39,15 +35,13 @@ class EventsController extends Controller
     {
         $event->load('reservations');
 
-        return response()->json(
-            data: [
-                'status'  => true,
-                'message' => trans('response.retrieved', [
-                    'entity' => trans('entities.event')
-                ]),
-                'data' => $event
-            ],
-            status: Response::HTTP_OK
+        return jsonResponse(
+            status: true,
+            message: trans('response.retrieved', [
+                'entity' => trans('entities.event')
+            ]),
+            statusCode: Response::HTTP_OK,
+            data: $event->toArray()
         );
     }
 }

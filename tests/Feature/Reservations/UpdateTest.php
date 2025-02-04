@@ -94,7 +94,7 @@ it('should fail to update a reservation', function () {
     ])
         ->assertBadRequest()
         ->assertJson([
-            'status' => true,
+            'status' => false,
             'error'  => trans('response.failed_to_update', [
                 'entity' => trans('entities.reservation')
             ]),
@@ -127,7 +127,7 @@ it('should fail to update a reservation with no tickets available', function () 
     ])
         ->assertBadRequest()
         ->assertJson([
-            'status' => true,
+            'status' => false,
             'error'  => trans('response.failed_to_update', [
                 'entity' => trans('entities.reservation')
             ]),

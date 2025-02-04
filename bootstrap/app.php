@@ -22,13 +22,11 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withExceptions(function (Exceptions $exceptions) {
         $exceptions->renderable(
-            fn (ValidationException $validationException) => response()->json(
-                [
-                    'status'  => false,
-                    'message' => trans('response.invalid_paramaters'),
-                    'errors'  => $validationException->errors()
-                ],
-                status: Response::HTTP_UNPROCESSABLE_ENTITY
+            fn (ValidationException $validationException) => jsonResponse(
+                status: false,
+                message: trans('response.invalid_paramaters'),
+                statusCode: Response::HTTP_UNPROCESSABLE_ENTITY,
+                errors: $validationException->errors()
             )
         );
 
@@ -37,26 +35,24 @@ return Application::configure(basePath: dirname(__DIR__))
                 $previousException = $notFoundException->getPrevious();
 
                 if ($previousException instanceof ModelNotFoundException) {
-                    return response()->json(
-                        [
-                            'status'  => false,
-                            'message' => trans('response.not_found', [
-                                'entity' => str($previousException->getModel())->afterLast('\\')
-                            ]),
-                        ],
-                        status: Response::HTTP_NOT_FOUND
+                    $entity = str($previousException->getModel())->afterLast('\\');
+
+                    return jsonResponse(
+                        status: false,
+                        message: trans('response.not_found', [
+                            'entity' => $entity
+                        ]),
+                        statusCode: Response::HTTP_NOT_FOUND
                     );
                 }
             }
         );
 
         $exceptions->renderable(
-            fn (MethodNotAllowedHttpException $methodNotAllowedHttpException) => response()->json(
-                [
-                    'status'  => false,
-                    'message' => $methodNotAllowedHttpException->getMessage(),
-                ],
-                status: Response::HTTP_METHOD_NOT_ALLOWED
+            fn (MethodNotAllowedHttpException $methodNotAllowedHttpException) => jsonResponse(
+                status: false,
+                message: $methodNotAllowedHttpException->getMessage(),
+                statusCode: Response::HTTP_METHOD_NOT_ALLOWED
             )->setEncodingOptions(JSON_UNESCAPED_SLASHES)
         );
     })->create();

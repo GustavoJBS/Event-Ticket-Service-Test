@@ -77,7 +77,7 @@ it('should fail to create a reservation', function () {
     ])
         ->assertBadRequest()
         ->assertJson([
-            'status' => true,
+            'status' => false,
             'error'  => trans('response.failed_to_create', [
                 'entity' => trans('entities.reservation')
             ]),

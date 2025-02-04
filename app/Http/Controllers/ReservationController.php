@@ -24,27 +24,23 @@ class ReservationController extends Controller
         } catch (\Throwable $th) {
             DB::rollBack();
 
-            return response()->json(
-                [
-                    'status' => true,
-                    'error'  => trans('response.failed_to_create', [
-                        'entity' => trans('entities.reservation')
-                    ]),
-                    'message' => $th->getMessage(),
-                ],
-                status: Response::HTTP_BAD_REQUEST
+            return jsonResponse(
+                status: false,
+                message: $th->getMessage(),
+                statusCode: Response::HTTP_BAD_REQUEST,
+                errorMessage: trans('response.failed_to_create', [
+                    'entity' => trans('entities.reservation')
+                ])
             );
         }
 
-        return response()->json(
-            [
-                'status'  => true,
-                'message' => trans('response.created', [
-                    'entity' => trans('entities.reservation')
-                ]),
-                'data' => $reservation
-            ],
-            status: Response::HTTP_CREATED
+        return jsonResponse(
+            status: true,
+            message: trans('response.created', [
+                'entity' => trans('entities.reservation')
+            ]),
+            statusCode: Response::HTTP_CREATED,
+            data: $reservation->toArray()
         );
     }
 
@@ -63,27 +59,23 @@ class ReservationController extends Controller
         } catch (\Throwable $th) {
             DB::rollBack();
 
-            return response()->json(
-                [
-                    'status' => true,
-                    'error'  => trans('response.failed_to_update', [
-                        'entity' => trans('entities.reservation')
-                    ]),
-                    'message' => $th->getMessage(),
-                ],
-                status: Response::HTTP_BAD_REQUEST
+            return jsonResponse(
+                status: false,
+                message: $th->getMessage(),
+                statusCode: Response::HTTP_BAD_REQUEST,
+                errorMessage: trans('response.failed_to_update', [
+                    'entity' => trans('entities.reservation')
+                ])
             );
         }
 
-        return response()->json(
-            [
-                'status'  => true,
-                'message' => trans('response.updated', [
-                    'entity' => trans('entities.reservation')
-                ]),
-                'data' => $reservation
-            ],
-            status: Response::HTTP_OK
+        return jsonResponse(
+            status: true,
+            message: trans('response.updated', [
+                'entity' => trans('entities.reservation')
+            ]),
+            statusCode: Response::HTTP_OK,
+            data: $reservation->toArray()
         );
     }
 
@@ -91,14 +83,12 @@ class ReservationController extends Controller
     {
         $reservation->delete();
 
-        return response()->json(
-            [
-                'status'  => true,
-                'message' => trans('response.cancel', [
-                    'entity' => trans('entities.reservation')
-                ])
-            ],
-            status: Response::HTTP_OK
+        return jsonResponse(
+            status: true,
+            message: trans('response.cancel', [
+                'entity' => trans('entities.reservation')
+            ]),
+            statusCode: Response::HTTP_OK
         );
     }
 }
